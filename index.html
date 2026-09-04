@@ -92,6 +92,8 @@ input[type=range]::-moz-range-thumb{width:28px;height:28px;border-radius:50%;bac
 .newsletter p{font-size:.88rem;opacity:.6;margin-bottom:1rem;line-height:1.5;}
 .newsletter input[type=email]{width:100%;padding:.8rem 1rem;border-radius:12px;border:2px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);color:var(--warm-cream);font-family:inherit;font-size:1rem;margin-bottom:.7rem;outline:none;transition:border-color .2s;}
 .newsletter input[type=email]:focus{border-color:var(--warm-gold);}
+.newsletter input[type=text]:focus{border-color:var(--warm-gold);}
+.newsletter input[type=text]::placeholder{color:rgba(255,255,255,.28);}
 .newsletter input[type=email]::placeholder{color:rgba(255,255,255,.28);}
 .gdpr-check{display:flex;align-items:flex-start;gap:.6rem;margin-bottom:1rem;text-align:left;}
 .gdpr-check input{margin-top:3px;accent-color:var(--accent);}
@@ -295,6 +297,7 @@ input[type=range]::-moz-range-thumb{width:28px;height:28px;border-radius:50%;bac
     <h3>Nyerj a tökéletes alvásért!</h3>
     <p>Iratkozz fel hírlevelünkre, és nyerd meg álompárnáink egyikét, hogy még pihentetőbbek legyenek az éjszakáid!</p>
     <div id="nlForm">
+      <input type="text" id="nlName" placeholder="Neved…" autocomplete="name" style="width:100%;padding:.8rem 1rem;border-radius:12px;border:2px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);color:var(--warm-cream);font-family:inherit;font-size:1rem;margin-bottom:.7rem;outline:none;transition:border-color .2s;">
       <input type="email" id="nlEmail" placeholder="E-mail címed…" autocomplete="email">
       <div class="gdpr-check">
         <input type="checkbox" id="gdprCheck">
@@ -407,11 +410,23 @@ function showResults(){
   showScreen('results');
 }
 function submitNewsletter(){
-  const e=document.getElementById('nlEmail').value,g=document.getElementById('gdprCheck').checked;
+  const n=document.getElementById('nlName').value.trim();
+  const e=document.getElementById('nlEmail').value.trim();
+  const g=document.getElementById('gdprCheck').checked;
+  if(!n){document.getElementById('nlName').style.borderColor='var(--soft-coral)';return;}
   if(!e||!e.includes('@')){document.getElementById('nlEmail').style.borderColor='var(--soft-coral)';return;}
   if(!g){document.querySelector('.gdpr-check label').style.color='var(--soft-coral)';return;}
-  console.log('Newsletter signup:',e);
-  document.getElementById('nlForm').style.display='none';document.getElementById('thanksMsg').style.display='block';
+  var btn=document.querySelector('#nlForm .btn');
+  btn.textContent='Küldés...';btn.style.pointerEvents='none';btn.style.opacity='.6';
+  fetch('https://hook.eu2.make.com/hhnf1i4ijjv2dfrws1surwwcm53psj39',{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/x-www-form-urlencoded'},
+    body:'name='+encodeURIComponent(n)+'&email='+encodeURIComponent(e)
+  }).then(function(){
+    document.getElementById('nlForm').style.display='none';
+    document.getElementById('thanksMsg').style.display='block';
+  }).catch(function(){
+    document.getElementById('nlForm').style.display='none';
+    document.getElementById('thanksMsg').style.display='block';
+  });
 }
 function resetGame(){startGame();}
 document.getElementById('modalOverlay').addEventListener('click',function(e){if(e.target===this)closeModal();});
